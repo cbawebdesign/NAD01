@@ -1,7 +1,7 @@
 import organizationPageObject from '../../support/organization.po';
 
 describe(`Update Organization`, () => {
-  const organizationName = `Tristate Union Benefits`;
+  const organizationName = `Digital Alpha Advisors LLC`;
 
   describe(`Given the user updates the organization name and logo`, () => {
     it('the UI will be updated', () => {

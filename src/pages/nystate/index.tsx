@@ -13,7 +13,7 @@ const NYStatePage = dynamic(
 
 const Search = () => {
     return (
-      <RouteShell title={'NY State Incoming Data'}>
+      <RouteShell title={'Document Upload'}>
         <NYStatePage/>
       </RouteShell>
     );

@@ -94,7 +94,7 @@ export default function DownloadPage() {
   }, [isSdkInitialized, currentSubCategory]);
   const mainCategories = ['Capital Account', 'Distributions', 'Financials', 'K1 Statements', 'Capital Calls'];
   const subCategories = {
-    'Capital Account': 'CAS24Q2',
+    'Capital Account': 'CAS23Q2',
     'Distributions': 'Distributions2023',
     'Financials': 'Financials2023',
   };
@@ -179,7 +179,7 @@ export default function DownloadPage() {
 {selectedSubCategories.map(subCategory => {
   const filteredData = newData.filter(data => data.subCategory === subCategory);
   if (filteredData.length === 0) {
-    return <p key={subCategory}>No data available for {subCategory}.</p>
+    return <p key={subCategory}>No data available for {subCategory}</p>
   }
   return null;
 })}

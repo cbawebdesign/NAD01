@@ -38,7 +38,7 @@ function Index() {
           
 
             <HeroTitle>
-              <span>Tristate Union Benefits</span>
+              <span>Digital Alpha</span>
               <span
                 className={
                   'bg-gradient-to-br bg-clip-text text-transparent' +

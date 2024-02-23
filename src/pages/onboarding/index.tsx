@@ -53,7 +53,7 @@ const Onboarding = () => {
   return (
     <Layout>
       <Head>
-        <title key="title">Onboarding 2</title>
+        <title key="title">Onboarding</title>
       </Head>
 
       <div

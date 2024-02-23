@@ -9,12 +9,12 @@ enum Themes {
 
 const configuration = {
   site: {
-    name: 'Tristate Union Benefits',
+    name: 'Digital Alpha Advisors LLC',
     description: 'Admin',
     themeColor: '#ffffff',
     themeColorDark: '#0a0a0a',
     siteUrl: process.env.NEXT_PUBLIC_SITE_URL as string,
-    siteName: 'Tristate Union Benefits',
+    siteName: 'Digital Alpha Advisors LLC',
     twitterHandle: '',
     githubHandle: '',
     convertKitFormId: '',

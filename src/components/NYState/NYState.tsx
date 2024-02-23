@@ -10,7 +10,7 @@ export default function UploadPage() {
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string>('');
   const [uploadError, setUploadError] = useState<string | null>(null);
-  const categories = ['CAS24Q2', 'Category 2', 'Category 3', 'Category 4'];
+  const categories = ['CAS24Q1', 'CAS23Q4', 'CAS23Q3', 'CAS23Q2'];
   useEffect(() => {
     initialize(
       () => fetch('https://us-central1-test7-8a527.cloudfunctions.net/generateJwt')
