@@ -97,7 +97,6 @@ if (!response.ok) {
             setUploadedFiles(prevFiles => [...prevFiles, { fileName: file.name, group: data.group }]);
             // Set uploadSuccess to true
             setUploadSuccess(true);
-            setUploadErrors([]);
           }
         }
       );
