@@ -1,0 +1,20 @@
+{
+    "version": "https://jsonfeed.org/version/1",
+    "title": "Tristate Union Benefits",
+    "home_page_url": "http://localhost:3000",
+    "feed_url": "http://localhost:3000/rss.json",
+    "description": "Admin",
+    "author": {},
+    "items": [
+        {
+            "id": "http://localhost:3000/blog/changelog/why-makerkit",
+            "content_html": "\n## Fecerat avis invenio mentis\n\nLorem markdownum signis vidi quisquis saepe inani inter animam laceras nequiquam\ncastos cumque dum poste pede, **soliti et** eras. Cornua utendum. Ne dignus\nopacae? Moles percussis, redimitus equi quercus haurit perque *aras*; humo!\nDigessit Famemque membris vestrum [sua adveniens](http://erit.net/luctus.php)\ndeserta, et me cum cum dicuntur et ignes.\n\n    var xmp_duplex = boolean + alu_unmount_tween - newline;\n    var matrix_http_plain = facebook;\n    rom = risc_flops + market + 2 + reimage_c_mca;\n\n## Parilesque duae meritis\n\nSuum spes medio faciunt miserarum artisque. Honor amplectique crescunt saepius\ncavis esse saepe laetabile modo. Fontis relinquit titulum est victa mundi!\n\n## Orbem dare\n\nMore cingo concipit cumque armenta. Secuta quare profundi damni erigimur effugit\nfacta ipsa, videt videt. Conantem et **campos animos usquam** ut munus erat\naudito, e!\n\n> Talia ponit corpora Philemon. Volant pone dicta, fugerent hanc; trahunt plus\n> **cinxit agendo**, Sedit, animum, molli spargere. Perterrita et bella Tiresia\n> tanta auctor, colatur **nigro** externa. Stamina nunc bis *longeque* cornua.\n\n## Cantat sequentes et illi opertos Cycno\n\nPer inque Pallade cuspide errabat. Est dolor excitus ultorem avertere, numero et\nMinos pater flamine, ictu tune Phylius.\n\nDitem est qui Scythicis erubuit suae, qui nunc tacito aequare auras. Suas erat\ncubitoque esse, volventem quae, fera tinxi villo ita. Addit hic sine at orbe ut\nsanesque intravit pudore nullisque Canens, ait aut. Parabat Pittheia Pan cibus\net perque inquit grave suae coniunx cura matris undaeque et stagni et.\n",
+            "url": "http://localhost:3000/blog/changelog/why-makerkit",
+            "title": "Lorem Ipsum",
+            "summary": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua",
+            "image": "http://localhost:3000/assets/images/posts/lorem-ipsum.webp",
+            "date_modified": "2021-01-12T00:00:00.000Z",
+            "author": {}
+        }
+    ]
+}

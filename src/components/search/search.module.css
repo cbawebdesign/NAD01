@@ -1,0 +1,92 @@
+/* Existing styles */
+.columnHeader, .dataCell {
+  width: 80px; /* Adjust as needed */
+  text-align: left;
+}
+
+.dataInputRow label {
+  width: 80px; /* Adjust if needed */
+  margin-right: 10px;
+  text-align: left; /* Align label text */
+}
+
+.dataInput {
+  width: 80px;
+  margin-right: 10px;
+  padding: 5px;
+  color: blue;
+}
+
+.dataInputRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.sectionTitle {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  /* Other styling as needed */
+}
+
+/* New styles for side-by-side layout */
+.tablesContainer {
+  display: flex;
+  justify-content: space-between; /* Adjust the spacing between tables */
+  flex-wrap: wrap; /* Allows tables to stack on smaller screens */
+}
+
+.tableWrapper {
+  flex-basis: 48%; /* Adjust the width of each table container */
+  /* Add other styles as needed for padding, margins, etc. */
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th, .table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.table th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #3c07b7;
+  color: white;
+}
+
+.inputField {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  box-sizing: border-box;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+}
+.submitButton {
+  background-color: #3c07b7; /* Green background */
+  border: none; /* Remove border */
+  color: white; /* White text */
+  padding: 15px 32px; /* Padding */
+  text-align: center; /* Center text */
+  text-decoration: none; /* Remove underline */
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer; /* Pointer cursor on hover */
+  border-radius: 12px; /* Rounded corners */
+  transition-duration: 0.4s; /* Transition effect */
+}
+
+.submitButton:hover {
+  background-color: rgb(100, 149, 237);  /* White background on hover */
+  color: black; /* Black text on hover */
+}
+
+
+
+  
