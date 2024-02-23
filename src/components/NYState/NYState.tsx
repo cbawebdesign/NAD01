@@ -10,7 +10,7 @@ export default function UploadPage() {
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string>('');
   const [uploadError, setUploadError] = useState<string | null>(null);
-  const categories = ['CAS24Q2', 'Category 2', 'Category 3', 'Category 4'];
+  const categories = ['CAS24Q1', 'CAS23Q4', 'CAS23Q3', 'CAS23Q2'];
   useEffect(() => {
     initialize(
       () => fetch('https://us-central1-test7-8a527.cloudfunctions.net/generateJwt')
@@ -27,19 +27,18 @@ export default function UploadPage() {
 
   const handleUpload = async () => {
     if (!files || !isSdkInitialized) return;
-  
-    // Check if a category is selected
-    if (!selectedCategories) {
-      alert('Please select a category before uploading.');
-      return;
-    }
-  
-    const uploadPromises = Array.from(files).map((file) => new Promise<void>((resolve, reject) => {
+// Check if a category is selected
+if (!selectedCategories) {
+  alert('Please select a category before uploading.');
+  return;
+}
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
       const storage = getStorage();
       const storageRef = ref(storage, 'groups/' + file.name);
-  
+
       const uploadTask = uploadBytesResumable(storageRef, file);
-  
+
       uploadTask.on('state_changed', 
         (snapshot) => {
           var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
@@ -48,30 +47,29 @@ export default function UploadPage() {
         }, 
         (error) => {
           console.log(error);
-          reject(error);
         }, 
         async () => {
           const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
           console.log('File available at', downloadURL);
-  
+
           // Convert the download URL string to a Uint8Array
           const urlUint8Array = new TextEncoder().encode(downloadURL);
-  
+
           // Encrypt the URL
           const encryptedUrlResult = await document.encrypt(urlUint8Array);
-  
+
           // Convert the encrypted URL to a base64 string
           const encryptedUrl = btoa(String.fromCharCode(...new Uint8Array(encryptedUrlResult.document)));
-  
+
           // Convert the fileName to a Uint8Array
           const fileNameUint8Array = new TextEncoder().encode(file.name);
-  
+
           // Encrypt the fileName
           const encryptedFileNameResult = await document.encrypt(fileNameUint8Array);
-  
+
           // Convert the encrypted fileName to a base64 string
           const encryptedFileName = btoa(String.fromCharCode(...new Uint8Array(encryptedFileNameResult.document)));
-  
+
           // Make a request to your API to update the group document
           const response = await fetch('/api/uploads/uploads', {
             method: 'POST',
@@ -85,11 +83,10 @@ export default function UploadPage() {
               categories: selectedCategories, // Send the selected categories
             }),
           });
-  
+
           if (!response.ok) {
             const errorData = await response.json();
             setUploadError(errorData.error);
-            reject(errorData.error);
           } else {
             const data = await response.json();
             console.log(data);
@@ -98,19 +95,10 @@ export default function UploadPage() {
             // Set uploadSuccess to true
             setUploadSuccess(true);
             setUploadError(null); // Clear the error message on successful upload
-            resolve();
           }
         }
       );
-    }));
-  
-    const results = await Promise.allSettled(uploadPromises);
-  
-    results.forEach((result: PromiseSettledResult<any>, index: number) => {
-      if (result.status === 'rejected') {
-        console.error(`Error uploading file ${files[index].name}: ${result.reason}`);
-      }
-    });
+    }
   };
   const handleCategoryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, checked } = event.target;
@@ -150,7 +138,9 @@ export default function UploadPage() {
     borderRadius: '5px',
     backgroundColor: '#f2f2f2',
   };
-  
+  const checkboxStyle = {
+    backgroundColor: '#ffffff',
+  };
   return (
     <div style={{ marginTop: '50px' }}>
       <input 
@@ -172,8 +162,9 @@ export default function UploadPage() {
               id={`category-${index}`} 
               name={category} 
               onChange={handleCategoryChange}
+              style={buttonStyle}
             />
-            <label htmlFor={`category-${index}`}>{category}</label>
+      <label htmlFor={`category-${index}`} style={{ color: '#000000' }}>{category}</label>
           </div>
         ))}
       </div>
@@ -194,4 +185,4 @@ export default function UploadPage() {
       </div>
     </div>
   );
-        }
+}
