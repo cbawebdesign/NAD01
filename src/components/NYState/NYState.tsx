@@ -9,8 +9,10 @@ export default function UploadPage() {
   const [uploadedFiles, setUploadedFiles] = useState<{ fileName: string, group: string }[]>([]);
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string>('');
-  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadErrors, setUploadErrors] = useState<string[]>([]);
   const categories = ['CAS24Q1', 'CAS23Q4', 'CAS23Q3', 'CAS23Q2'];
+  const [hasError, setHasError] = useState(false);
+
   useEffect(() => {
     initialize(
       () => fetch('https://us-central1-test7-8a527.cloudfunctions.net/generateJwt')
@@ -83,18 +85,19 @@ if (!selectedCategories) {
               categories: selectedCategories, // Send the selected categories
             }),
           });
-
-          if (!response.ok) {
-            const errorData = await response.json();
-            setUploadError(errorData.error);
-          } else {
+// In your API request, add the error message to the uploadErrors array
+if (!response.ok) {
+  const errorData = await response.json();
+  setUploadErrors(prevErrors => [...prevErrors, errorData.error]);
+  setHasError(true); // Set hasError to true
+} else {
             const data = await response.json();
             console.log(data);
             // After a file is uploaded, add its name to the state
             setUploadedFiles(prevFiles => [...prevFiles, { fileName: file.name, group: data.group }]);
             // Set uploadSuccess to true
             setUploadSuccess(true);
-            setUploadError(null); // Clear the error message on successful upload
+            setUploadErrors([]);
           }
         }
       );
@@ -173,8 +176,9 @@ if (!selectedCategories) {
         <progress value={uploadProgress} max="100" style={{ width: '50%', height: '20px', borderRadius: '10px', overflow: 'hidden' }} />
       </div>
       {uploadSuccess && <p style={{ color: 'green' }}>Upload successful!</p>}
-      {uploadError && <p style={{ color: 'red' }}>{uploadError}</p>}
-      <div>
+{hasError && uploadErrors.map((error, index) => (
+  <p key={index} style={{ color: 'red' }}>{error}</p> // Display the error messages in red
+))}     <div>
         <h2 style={{ marginTop: '20px' }}>Uploaded files:</h2>
         {uploadedFiles.map((file, index) => (
   <div key={index} style={uploadedFileStyle}>
