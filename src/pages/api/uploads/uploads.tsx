@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
+import { getFirestore, serverTimestamp,doc, setDoc, getDoc } from "firebase/firestore";
 import { initializeApp, getApps } from "firebase/app";
 
 const firebaseConfig = {
@@ -48,7 +48,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           image: encryptedFileName, // Use the encrypted fileName here
           downloadURL: encryptedUrl,
           users: members,
-          categories: categories // Add the categories field
+          categories: categories,// Add the categories field
+          timestamp: serverTimestamp(),// Add the timestamp field
+
         });
 
         res.status(200).json({ message: 'File uploaded successfully', group: docName});
