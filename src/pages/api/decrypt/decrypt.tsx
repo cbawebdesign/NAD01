@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { initializeApp } from 'firebase/app';
+import { initializeApp, getApps} from 'firebase/app';
 import { getFirestore, collection, query as firestoreQuery, where, getDocs } from 'firebase/firestore';
 
 const firebaseConfig = {
@@ -12,8 +12,15 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+  let app;
+
+  if (!getApps().length) {
+    app = initializeApp(firebaseConfig);
+  } else {
+    app = getApps()[0];
+  }
+
+  const db = getFirestore(app);  
 
   if (req.method === 'POST') {
     try {
