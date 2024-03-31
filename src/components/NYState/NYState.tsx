@@ -10,7 +10,7 @@ export default function UploadPage() {
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string>('');
   const [uploadErrors, setUploadErrors] = useState<string[]>([]);
-  const categories = ['CAS24Q1', 'CAS23Q4', 'CAS23Q3', 'CAS23Q2'];
+  const categories = ['CAS24Q1', 'CAS23Q4', 'CAS23Q3', 'CAS23Q2', 'Distributions2024'];
   const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
