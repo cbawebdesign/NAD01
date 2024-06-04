@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { initializeApp, getApps } from 'firebase/app';
-import { getFirestore, collection, getDocs } from 'firebase/firestore';
+import { getFirestore, doc, updateDoc, getDoc, arrayRemove } from 'firebase/firestore';
 
 // Firebase configuration
 const firebaseConfig = {
@@ -10,7 +10,7 @@ const firebaseConfig = {
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
 // Initialize Firebase
@@ -24,29 +24,31 @@ if (!getApps().length) {
 const db = getFirestore(app);
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method === 'GET') {
+  if (req.method === 'POST') {
     try {
-      const groupsCollection = collection(db, 'groups');
-      const snapshot = await getDocs(groupsCollection);
-      const groups = snapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          name: doc.id,
-          users: Array.isArray(data.users) ? data.users.map(user => ({
-            name: user.name || '',
-            email: user.email || '',
-            id: user.id || ''
-          })) : [],
-          members: data.members || [],
-          created: data.created ? data.created.toDate().toISOString() : null
-        };
+      const { groupId, id } = req.body;
+      const groupRef = doc(db, 'groups', groupId);
+      const groupDoc = await getDoc(groupRef);
+      
+      if (!groupDoc.exists()) {
+        throw new Error('Group not found');
+      }
+
+      const groupData = groupDoc.data();
+      const userToRemove = groupData.users.find((user: { id: string }) => user.id === id);
+
+      if (!userToRemove) {
+        throw new Error('User not found in the group');
+      }
+
+      await updateDoc(groupRef, {
+        users: arrayRemove(userToRemove),
       });
 
-      res.status(200).json(groups);
+      res.status(200).json({ message: 'Member deleted successfully' });
     } catch (error) {
       const errMsg = (error instanceof Error) ? error.message : 'Unknown error occurred';
-      console.error('Error fetching groups:', errMsg);
+      console.error('Error deleting member:', errMsg);
       res.status(500).json({ error: 'Internal Server Error', details: errMsg });
     }
   } else {

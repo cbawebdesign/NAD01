@@ -1,297 +1,343 @@
-import { Line, ResponsiveContainer, LineChart, XAxis } from 'recharts';
-import { useMemo } from 'react';
+import { useEffect, useState } from 'react';
 
-import Tile from '~/core/ui/Tile';
-import Heading from '~/core/ui/Heading';
+interface Request {
+  id: string;
+  title: string;
+  description: string;
+  status: string;
+  notes: string[];
+  created: string;
+  flagged: boolean;
+}
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '~/core/ui/Table';
+const RequestsPage = () => {
+  const [requests, setRequests] = useState<Request[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [newRequest, setNewRequest] = useState<{ title: string; description: string; flagged: boolean }>({ title: '', description: '', flagged: false });
+  const [selectedRequest, setSelectedRequest] = useState<Request | null>(null);
+  const [note, setNote] = useState<string>('');
+  const [confirmDelete, setConfirmDelete] = useState<{ show: boolean; id: string | null }>({ show: false, id: null });
 
-import { useUserSession } from '~/core/hooks/use-user-session';
-import { Title } from '@radix-ui/react-dialog';
-
-export default function DashboardDemo() {
-  const mrr = useMemo(() => generateDemoData(), []);
-  const visitors = useMemo(() => generateDemoData(), []);
-  const returningVisitors = useMemo(() => generateDemoData(), []);
-  const churn = useMemo(() => generateDemoData(), []);
-  const netRevenue = useMemo(() => generateDemoData(), []);
-  const fees = useMemo(() => generateDemoData(), []);
-  const newCustomers = useMemo(() => generateDemoData(), []);
-  const tickets = useMemo(() => generateDemoData(), []);
-  const activeUsers = useMemo(() => generateDemoData(), []);
-
-  return (
-    <div className={'flex flex-col space-y-6 pb-36'}>
-      <UserGreetings />
-      <p>IN DEVELOPMENT-DRAFT</p>
-
-      <div
-        className={
-          'grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3' +
-          ' xl:grid-cols-4'
+  useEffect(() => {
+    const fetchRequests = async () => {
+      try {
+        const response = await fetch('/api/getrequests/getrequests');
+        if (!response.ok) {
+          throw new Error('Failed to fetch requests');
         }
-      >
-        <Tile>
-          <Tile.Heading>New Customers</Tile.Heading>
+        const data = await response.json();
+        setRequests(data);
+        setLoading(false);
+      } catch (err) {
+        const errMsg = (err instanceof Error) ? err.message : 'An unknown error occurred';
+        setError(errMsg);
+        setLoading(false);
+      }
+    };
 
-          <Tile.Body>
-            <div className={'flex justify-between'}>
-              <Tile.Figure>{`$${mrr[1]}`}</Tile.Figure>
-              <Tile.Trend trend={'up'}>0%</Tile.Trend>
-            </div>
+    fetchRequests();
+  }, []);
 
-            <Chart data={mrr[0]} />
-          </Tile.Body>
-        </Tile>
+  const handleAddRequest = async () => {
+    try {
+      const response = await fetch('/api/addrequest/addrequest', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newRequest),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to add request');
+      }
+      const data = await response.json();
+      setRequests([...requests, { ...newRequest, id: data.id, status: 'pending', notes: [], created: new Date().toISOString() }]);
+      setNewRequest({ title: '', description: '', flagged: false });
+    } catch (error) {
+      const errMsg = (error instanceof Error) ? error.message : 'An unknown error occurred';
+      setError(errMsg);
+    }
+  };
 
-        <Tile>
-          <Tile.Heading>Existing Customers</Tile.Heading>
+  const handleUpdateRequest = async (id: string, status: string, note: string, flagged: boolean) => {
+    try {
+      const response = await fetch('/api/updaterequest/updaterequest', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id, status, note, flagged }),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to update request');
+      }
+      setRequests(requests.map(req => (req.id === id ? { ...req, status, notes: [...req.notes, note], flagged } : req)));
+      setSelectedRequest(null);
+      setNote('');
+    } catch (error) {
+      const errMsg = (error instanceof Error) ? error.message : 'An unknown error occurred';
+      setError(errMsg);
+    }
+  };
 
-          <Tile.Body>
-            <div className={'flex justify-between'}>
-              <Tile.Figure>{`$${netRevenue[1]}`}</Tile.Figure>
-              <Tile.Trend trend={'up'}>12%</Tile.Trend>
-            </div>
+  const toggleFlag = async (id: string, currentFlag: boolean) => {
+    try {
+      const response = await fetch('/api/updaterequest/updaterequest', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id, flagged: !currentFlag }),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to update request');
+      }
+      setRequests(requests.map(req => (req.id === id ? { ...req, flagged: !currentFlag } : req)));
+    } catch (error) {
+      const errMsg = (error instanceof Error) ? error.message : 'An unknown error occurred';
+      setError(errMsg);
+    }
+  };
 
-            <Chart data={netRevenue[0]} />
-          </Tile.Body>
-        </Tile>
+  const handleDeleteRequest = async (id: string) => {
+    try {
+      const response = await fetch('/api/deleterequest/deleterequest', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id }),
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.details || 'Failed to delete request');
+      }
+      setRequests(requests.filter(req => req.id !== id));
+      setConfirmDelete({ show: false, id: null });
+    } catch (error) {
+      const errMsg = (error instanceof Error) ? error.message : 'An unknown error occurred';
+      setError(errMsg);
+    }
+  };
 
-        <Tile>
-          <Tile.Heading>Outgoing Files</Tile.Heading>
-
-          <Tile.Body>
-            <div className={'flex justify-between'}>
-              <Tile.Figure>{`$${fees[1]}`}</Tile.Figure>
-              <Tile.Trend trend={'up'}>9%</Tile.Trend>
-            </div>
-
-            <Chart data={fees[0]} />
-          </Tile.Body>
-        </Tile>
-
-        <Tile>
-          <Tile.Heading>Incoming Files</Tile.Heading>
-
-          <Tile.Body>
-            <div className={'flex justify-between'}>
-              <Tile.Figure>{`${newCustomers[1]}`}</Tile.Figure>
-              <Tile.Trend trend={'down'}>-25%</Tile.Trend>
-            </div>
-
-            <Chart data={newCustomers[0]} />
-          </Tile.Body>
-        </Tile>
-
-        <Tile>
-          <Tile.Heading>Placeholder</Tile.Heading>
-
-          <Tile.Body>
-            <div className={'flex justify-between'}>
-              <Tile.Figure>{visitors[1]}</Tile.Figure>
-              <Tile.Trend trend={'down'}>-4.3%</Tile.Trend>
-            </div>
-
-            <Chart data={visitors[0]} />
-          </Tile.Body>
-        </Tile>
-
-        <Tile>
-          <Tile.Heading>Placeholder</Tile.Heading>
-
-          <Tile.Body>
-            <div className={'flex justify-between'}>
-              <Tile.Figure>{returningVisitors[1]}</Tile.Figure>
-              <Tile.Trend trend={'stale'}>10%</Tile.Trend>
-            </div>
-
-            <Chart data={returningVisitors[0]} />
-          </Tile.Body>
-        </Tile>
-
-        <Tile>
-          <Tile.Heading>Placeholder</Tile.Heading>
-
-          <Tile.Body>
-            <div className={'flex justify-between'}>
-              <Tile.Figure>{churn[1]}%</Tile.Figure>
-              <Tile.Trend trend={'up'}>-10%</Tile.Trend>
-            </div>
-
-            <Chart data={churn[0]} />
-          </Tile.Body>
-        </Tile>
-
-        <Tile>
-          <Tile.Heading>Placeholder</Tile.Heading>
-
-          <Tile.Body>
-            <div className={'flex justify-between'}>
-              <Tile.Figure>{tickets[1]}</Tile.Figure>
-              <Tile.Trend trend={'up'}>-30%</Tile.Trend>
-            </div>
-
-            <Chart data={tickets[0]} />
-          </Tile.Body>
-        </Tile>
-      </div>
-
-      <div>
-        <Tile>
-          <Tile.Heading>Placeholder</Tile.Heading>
-
-          <Tile.Body>
-            <div className={'flex justify-between'}>
-              <Tile.Figure>{activeUsers[1]}</Tile.Figure>
-              <Tile.Trend trend={'up'}>10%</Tile.Trend>
-            </div>
-
-            <Chart data={activeUsers[0]} />
-          </Tile.Body>
-        </Tile>
-      </div>
-
-      <div>
-        <Tile>
-          <Tile.Heading>Placeholder</Tile.Heading>
-
-          <Tile.Body>
-            <CustomersTable></CustomersTable>
-          </Tile.Body>
-        </Tile>
-      </div>
-    </div>
-  );
-}
-
-function UserGreetings() {
-  const user = useUserSession();
-  const userDisplayName = user?.auth?.displayName ?? user?.auth?.email ?? '';
-
-  return (
-    <div>
-      <Heading type={4}>Welcome Back, {userDisplayName}</Heading>
-
-      <p className={'text-gray-500 dark:text-gray-400'}>
-        <span>Here&apos;s what is happening across your business</span>
-      </p>
-    </div>
-  );
-}
-
-function generateDemoData() {
-  const today = new Date();
-
-  const formatter = new Intl.DateTimeFormat('en-us', {
-    month: 'long',
-    year: '2-digit',
-  });
-
-  const data: { value: string; name: string }[] = [];
-
-  for (let n = 8; n > 0; n -= 1) {
-    const date = new Date(today.getFullYear(), today.getMonth() - n, 1);
-
-    data.push({
-      name: formatter.format(date) as string,
-      value: (Math.random() * 10).toFixed(1),
-    });
+  if (loading) {
+    return <div>Loading...</div>;
   }
 
-  return [data, data[data.length - 1].value] as [typeof data, string];
-}
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
-function Chart(
-  props: React.PropsWithChildren<{ data: { value: string; name: string }[] }>,
-) {
   return (
-    <div className={'h-36'}>
-      <ResponsiveContainer width={'100%'} height={'100%'}>
-        <LineChart data={props.data}>
-          <Line
-            className={'text-primary'}
-            type="monotone"
-            dataKey="value"
-            stroke="currentColor"
-            strokeWidth={2.5}
-            dot={false}
+    <div className="requests-page">
+      <h1>Customer Service Requests</h1>
+      <div className="new-request">
+        <h2>Add New Request</h2>
+        <input
+          type="text"
+          placeholder="Title"
+          value={newRequest.title}
+          onChange={(e) => setNewRequest({ ...newRequest, title: e.target.value })}
+          className="transparent-input"
+        />
+        <textarea
+          placeholder="Description"
+          value={newRequest.description}
+          onChange={(e) => setNewRequest({ ...newRequest, description: e.target.value })}
+          className="transparent-input"
+        />
+        <label className="flag-label">
+          <span
+            className={`flag ${newRequest.flagged ? 'active' : ''}`}
+            onClick={() => setNewRequest({ ...newRequest, flagged: !newRequest.flagged })}
+          >
+            🚩
+          </span>
+          <input
+            type="checkbox"
+            checked={newRequest.flagged}
+            onChange={(e) => setNewRequest({ ...newRequest, flagged: e.target.checked })}
           />
+          Needs Attention
+        </label>
+        <button onClick={handleAddRequest}>Add Request</button>
+      </div>
+      <ul>
+        {requests.map(request => (
+          <li key={request.id} className="request-box">
+            <p><strong>Title:</strong> {request.title}</p>
+            <p><strong>Description:</strong> {request.description}</p>
+            <p><strong>Status:</strong> {request.status}</p>
+            <p><strong>Created:</strong> {new Date(request.created).toLocaleString()}</p>
+            <p><strong>Notes:</strong></p>
+            <ul>
+              {Array.isArray(request.notes) ? (
+                request.notes.map((note, index) => (
+                  <li key={index}>{note}</li>
+                ))
+              ) : (
+                <li>No notes available</li>
+              )}
+            </ul>
+            <div className="actions">
+              <label className="flag-label">
+                {request.flagged && (
+                  <span
+                    className={`flag ${request.flagged ? 'active' : ''}`}
+                    onClick={() => toggleFlag(request.id, request.flagged)}
+                  >
+                    🚩
+                  </span>
+                )}
+                <input
+                  type="checkbox"
+                  checked={request.flagged}
+                  onChange={() => toggleFlag(request.id, request.flagged)}
+                />
+                Needs Attention
+              </label>
+              <button className="action-button" onClick={() => setSelectedRequest(request)}>Add Note / Mark as Complete</button>
+              <button className="delete-button" onClick={() => setConfirmDelete({ show: true, id: request.id })}>Delete</button>
+            </div>
+          </li>
+        ))}
+      </ul>
 
-          <XAxis
-            style={{ fontSize: 9 }}
-            axisLine={false}
-            tickSize={0}
-            dataKey="name"
-            height={15}
-            dy={10}
-          />
-        </LineChart>
-      </ResponsiveContainer>
+      {selectedRequest && (
+        <div className="popup">
+          <div className="popup-content">
+            <h2>Update Request: {selectedRequest.title}</h2>
+            <textarea
+              placeholder="Add a note"
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              className="transparent-input"
+            />
+            <button onClick={() => handleUpdateRequest(selectedRequest.id, 'completed', note, selectedRequest.flagged)}>Mark as Complete</button>
+            <button onClick={() => handleUpdateRequest(selectedRequest.id, selectedRequest.status, note, selectedRequest.flagged)}>Add Note</button>
+            <button onClick={() => setSelectedRequest(null)}>Cancel</button>
+          </div>
+        </div>
+      )}
+
+      {confirmDelete.show && (
+        <div className="popup">
+          <div className="popup-content">
+            <h2>Are you sure you want to delete this request?</h2>
+            <button onClick={() => handleDeleteRequest(confirmDelete.id!)}>Yes, Delete</button>
+            <button onClick={() => setConfirmDelete({ show: false, id: null })}>Cancel</button>
+          </div>
+        </div>
+      )}
+
+      <style jsx>{`
+        .requests-page {
+          padding: 20px;
+        }
+        .new-request, .request-box, .popup-content {
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          padding: 20px;
+          margin-bottom: 20px;
+        }
+        .transparent-input {
+          background-color: transparent;
+          color: gray;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          padding: 10px;
+          width: 100%;
+          margin-bottom: 10px;
+        }
+        .transparent-input::placeholder {
+          color: gray;
+        }
+        .flag-label {
+          display: flex;
+          align-items: center;
+        }
+        .flag {
+          cursor: pointer;
+          font-size: 20px;
+          margin-right: 10px;
+        }
+        .flag.active {
+          color: red;
+        }
+        button {
+          padding: 10px 20px;
+          background-color: #0070f3;
+          color: white;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+          margin-right: 10px; /* Added margin for spacing */
+        }
+        button:hover {
+          background-color: #005bb5;
+        }
+        .delete-button {
+          background-color: #ff4d4d;
+        }
+        .delete-button:hover {
+          background-color: #e60000;
+        }
+        ul {
+          list-style: none;
+          padding: 0;
+        }
+        .request-box {
+          color: #1E90FF;
+        }
+        .request-box p {
+          margin: 0 0 10px 0;
+          font-weight: bold;
+        }
+        .request-box ul {
+          list-style: none;
+          padding-left: 20px;
+          margin: 0;
+        }
+        .request-box ul li {
+          font-weight: normal;
+          color: #1E90FF;
+        }
+        .actions {
+          display: flex;
+          align-items: center;
+          margin-top: 10px;
+        }
+        .actions .flag-label {
+          margin-right: 10px;
+        }
+        .actions .action-button {
+          margin-left: 10px;
+        }
+        .popup {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(0, 0, 0, 0.5);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+        .popup-content {
+          background-color: white;
+          padding: 20px;
+          border-radius: 5px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          text-align: center;
+        }
+        .popup-content h2 {
+          margin: 0 0 10px 0;
+        }
+      `}</style>
     </div>
   );
-}
+};
 
-function CustomersTable() {
-  return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Placeholder</TableHead>
-          <TableHead>Placeholder</TableHead>
-          <TableHead>Placeholder</TableHead>
-          <TableHead>Placeholder</TableHead>
-          <TableHead>Placeholder</TableHead>
-        </TableRow>
-      </TableHeader>
-
-      <TableBody>
-        <TableRow>
-          <TableCell>Placeholder</TableCell>
-          <TableCell>Placeholder</TableCell>
-          <TableCell>Placeholder</TableCell>
-          <TableCell>Placeholder</TableCell>
-          <TableCell>
-            <Tile.Badge trend={'up'}>Placeholder</Tile.Badge>
-          </TableCell>
-        </TableRow>
-
-        <TableRow>
-          <TableCell>Placeholder</TableCell>
-          <TableCell>Placeholder</TableCell>
-          <TableCell>Placeholder</TableCell>
-          <TableCell>Placeholder</TableCell>
-          <TableCell>
-            <Tile.Badge trend={'stale'}>Placeholder</Tile.Badge>
-          </TableCell>
-        </TableRow>
-
-        <TableRow>
-          <TableCell>Placeholder</TableCell>
-          <TableCell>Placeholder</TableCell>
-          <TableCell>Placeholder</TableCell>
-          <TableCell></TableCell>
-          <TableCell>
-            <Tile.Badge trend={'up'}>Placeholder</Tile.Badge>
-          </TableCell>
-        </TableRow>
-
-        <TableRow>
-          <TableCell>Placeholder</TableCell>
-          <TableCell>Placeholder</TableCell>
-          <TableCell>Placeholder</TableCell>
-          <TableCell>Placeholder</TableCell>
-          <TableCell>
-            <Tile.Badge trend={'down'}>Placeholder</Tile.Badge>
-          </TableCell>
-        </TableRow>
-      </TableBody>
-    </Table>
-  );
-}
+export default RequestsPage;

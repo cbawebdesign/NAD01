@@ -1,6 +1,8 @@
+// pages/api/deleterequest/deleterequest.ts
+
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { initializeApp, getApps } from 'firebase/app';
-import { getFirestore, collection, getDocs } from 'firebase/firestore';
+import { getFirestore, doc, deleteDoc } from 'firebase/firestore';
 
 // Firebase configuration
 const firebaseConfig = {
@@ -24,29 +26,18 @@ if (!getApps().length) {
 const db = getFirestore(app);
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method === 'GET') {
+  if (req.method === 'DELETE') {
+    const { id } = req.body;
+    if (!id) {
+      return res.status(400).json({ error: 'Missing request ID' });
+    }
     try {
-      const groupsCollection = collection(db, 'groups');
-      const snapshot = await getDocs(groupsCollection);
-      const groups = snapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          name: doc.id,
-          users: Array.isArray(data.users) ? data.users.map(user => ({
-            name: user.name || '',
-            email: user.email || '',
-            id: user.id || ''
-          })) : [],
-          members: data.members || [],
-          created: data.created ? data.created.toDate().toISOString() : null
-        };
-      });
-
-      res.status(200).json(groups);
+      const requestRef = doc(db, 'requests', id);
+      await deleteDoc(requestRef);
+      res.status(200).json({ message: 'Request deleted successfully' });
     } catch (error) {
       const errMsg = (error instanceof Error) ? error.message : 'Unknown error occurred';
-      console.error('Error fetching groups:', errMsg);
+      console.error('Error deleting request:', errMsg);
       res.status(500).json({ error: 'Internal Server Error', details: errMsg });
     }
   } else {

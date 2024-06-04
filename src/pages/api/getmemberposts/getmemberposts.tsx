@@ -1,6 +1,8 @@
+// pages/api/get-member-posts.ts
+
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { initializeApp, getApps } from 'firebase/app';
-import { getFirestore, collection, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
 
 // Firebase configuration
 const firebaseConfig = {
@@ -26,27 +28,18 @@ const db = getFirestore(app);
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
     try {
-      const groupsCollection = collection(db, 'groups');
-      const snapshot = await getDocs(groupsCollection);
-      const groups = snapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          name: doc.id,
-          users: Array.isArray(data.users) ? data.users.map(user => ({
-            name: user.name || '',
-            email: user.email || '',
-            id: user.id || ''
-          })) : [],
-          members: data.members || [],
-          created: data.created ? data.created.toDate().toISOString() : null
-        };
-      });
-
-      res.status(200).json(groups);
+      const { member } = req.query;
+      const postsCollection = collection(db, 'posts');
+      const q = query(postsCollection, where('users', 'array-contains', member));
+      const snapshot = await getDocs(q);
+      const posts = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      res.status(200).json(posts);
     } catch (error) {
       const errMsg = (error instanceof Error) ? error.message : 'Unknown error occurred';
-      console.error('Error fetching groups:', errMsg);
+      console.error('Error fetching member posts:', errMsg);
       res.status(500).json({ error: 'Internal Server Error', details: errMsg });
     }
   } else {

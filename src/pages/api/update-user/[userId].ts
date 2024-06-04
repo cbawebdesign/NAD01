@@ -8,24 +8,43 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const userId = req.query.userId as string; // Get the user ID from the URL
     console.log('Updating user with ID:', userId); // Log the user ID
 
-    const { ChangeDate,Status, FirstName, PreviousTotalPremium, MarkifBW, MM,union, spouse, startdate, LastName, LM, CurrentTotalPremium, CaseNotes } = req.body; // Extract the new values from the request body
+    const {
+      created,
+      email,
+      fullName,
+      lang,
+      lastName,
+      name,
+      phone,
+      photo,
+      role,
+      userName,
+    } = req.body; // Extract the new values from the request body
 
     // Create an object with only the fields that are not undefined
-    const updateData: Partial<{ ChangeDate:any;FirstName:any; MarkifBW:any; PreviousTotalPremium:any; Status:any;MM: any; union: any; spouse: any; CurrentTotalPremium: any; startdate: any; LM: any; CaseNotes:any;LastName: any; }> = {};
-    if (union !== undefined) updateData.union = union;
-    if (spouse !== undefined) updateData.spouse = spouse;
-    if (startdate !== undefined) updateData.startdate = startdate;
-    if (LastName !== undefined) updateData.LastName = LastName;
-    if (union !== undefined) updateData.union = union;
-    if (CaseNotes !== undefined) updateData.CaseNotes = CaseNotes;
-    if (LM !== undefined) updateData.LM = LM;
-    if (MM !== undefined) updateData.MM = MM;
-    if (MarkifBW !== undefined) updateData.MarkifBW = MarkifBW;
-    if (PreviousTotalPremium !== undefined) updateData.PreviousTotalPremium = union;
-    if (FirstName !== undefined) updateData.FirstName = FirstName;
-    if (Status !== undefined) updateData.Status = Status;
-    if (ChangeDate !== undefined) updateData.ChangeDate = ChangeDate;
-    if (CurrentTotalPremium !== undefined) updateData.CurrentTotalPremium = union;
+    const updateData: Partial<{
+      created: any;
+      email: string;
+      fullName: string;
+      lang: string;
+      lastName: string;
+      name: string;
+      phone: string;
+      photo: string;
+      role: string;
+      userName: string;
+    }> = {};
+
+    if (created !== undefined) updateData.created = created;
+    if (email !== undefined) updateData.email = email;
+    if (fullName !== undefined) updateData.fullName = fullName;
+    if (lang !== undefined) updateData.lang = lang;
+    if (lastName !== undefined) updateData.lastName = lastName;
+    if (name !== undefined) updateData.name = name;
+    if (phone !== undefined) updateData.phone = phone;
+    if (photo !== undefined) updateData.photo = photo;
+    if (role !== undefined) updateData.role = role;
+    if (userName !== undefined) updateData.userName = userName;
 
     try {
       // Update the user document in the database

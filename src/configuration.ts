@@ -71,7 +71,7 @@ const configuration = {
     signUp: '/auth/sign-up',
     emailLinkSignIn: '/auth/link',
     onboarding: `/onboarding`,
-    appHome: '/nystate',
+    appHome: '/dashboard',
     settings: {
       profile: '/settings/profile',
       authentication: '/settings/profile/authentication',

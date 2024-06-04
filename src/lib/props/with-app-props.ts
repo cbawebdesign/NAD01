@@ -87,7 +87,7 @@ export async function withAppProps(
     ]);
 
     // if the user wasn't found, redirect to the onboarding
-    if (!user || !organization) {
+    if (!user) {
       return redirectToOnboarding();
     }
 

@@ -10,9 +10,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     
     let queryBuilder: any = getUsersCollection();
 
-    if (union !== '' && union !== undefined) {
-      queryBuilder = queryBuilder.where('union', '==', union);
-    }
     
     if (active !== '' && active !== undefined) {
       queryBuilder = queryBuilder.where('Active', '==', active === 'true');

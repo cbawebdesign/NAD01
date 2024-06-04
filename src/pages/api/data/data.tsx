@@ -1,19 +1,49 @@
+// pages/api/get-users.ts
+
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getDocumentsCollection } from 'src/lib/server/collections';
-import { initializeFirebaseAdminApp } from 'src/core/firebase/admin/initialize-firebase-admin-app';
+import { initializeApp, getApps } from 'firebase/app';
+import { getFirestore, collection, getDocs } from 'firebase/firestore';
+
+// Firebase configuration
+const firebaseConfig = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
+};
+
+// Initialize Firebase
+let app;
+if (!getApps().length) {
+  app = initializeApp(firebaseConfig);
+} else {
+  app = getApps()[0];
+}
+
+const db = getFirestore(app);
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  await initializeFirebaseAdminApp();
-
   if (req.method === 'GET') {
     try {
-      const documentsSnapshot = await getDocumentsCollection().get();
-      const documents = documentsSnapshot.docs.map(doc => doc.data());
+      const usersCollection = collection(db, 'users');
+      const snapshot = await getDocs(usersCollection);
+      const users = snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          created: data.created ? data.created.toDate().toISOString() : null
+        };
+      });
 
-      res.status(200).json(documents);
+      res.status(200).json(users);
     } catch (error) {
-      console.error('Error fetching documents:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
+      const errMsg = (error instanceof Error) ? error.message : 'Unknown error occurred';
+      console.error('Error fetching users:', errMsg);
+      res.status(500).json({ error: 'Internal Server Error', details: errMsg });
     }
   } else {
     res.status(405).end('Method Not Allowed');
