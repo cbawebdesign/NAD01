@@ -69,6 +69,7 @@ const GroupsPage = () => {
 
   const handleButtonClick = (group: Group) => {
     setSelectedGroup(group);
+    generateRandomId(); // Generate random ID when the popup is shown
     setShowPopup(true);
   };
 
@@ -87,6 +88,12 @@ const GroupsPage = () => {
 
   const handleInputIdChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputId(event.target.value);
+  };
+
+  // Function to generate a random ID starting with "DALP" followed by 5 digits
+  const generateRandomId = () => {
+    const randomId = 'DALP' + Math.floor(10000 + Math.random() * 90000).toString();
+    setInputId(randomId);
   };
 
   const handleConfirm = async () => {
@@ -378,7 +385,7 @@ const GroupsPage = () => {
               type="text"
               placeholder="ID"
               value={inputId}
-              onChange={handleInputIdChange}
+              readOnly // Make this field read-only since the ID is auto-generated
             />
             <button onClick={handleConfirm}>Confirm</button>
             <button onClick={() => setShowPopup(false)}>Cancel</button>

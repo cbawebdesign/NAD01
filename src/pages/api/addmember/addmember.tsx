@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { initializeApp, getApps } from 'firebase/app';
-import { getFirestore, doc, updateDoc, arrayUnion, setDoc, writeBatch } from 'firebase/firestore';
+import { getFirestore, doc, updateDoc, setDoc, writeBatch, collection, getDoc } from 'firebase/firestore';
 import admin from 'firebase-admin';
 
 // Firebase configuration
@@ -33,15 +33,38 @@ if (!admin.apps.length) {
 const db = getFirestore(app);
 const auth = admin.auth();
 
+// Function to generate a unique user ID starting with "DALP" followed by 5 digits
+const generateUniqueId = async () => {
+  let uniqueId: string;
+  let isUnique = false;
+
+  while (!isUnique) {
+    const randomId = 'DALP' + Math.floor(10000 + Math.random() * 90000).toString();
+    const userRef = doc(db, 'users', randomId);
+    const docSnapshot = await getDoc(userRef);
+
+    if (!docSnapshot.exists()) {
+      uniqueId = randomId;
+      isUnique = true;
+    }
+  }
+
+  return uniqueId;
+};
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
     try {
       const { groupId, newMember } = req.body;
       const groupRef = doc(db, 'groups', groupId);
 
-      // Create a new user with Firebase Admin SDK using the provided ID as userName
+      // Generate a unique user ID
+      const uniqueId = await generateUniqueId();
+
+      // Create a new user with Firebase Admin SDK using the unique ID
       const randomPassword = Math.random().toString(36).slice(-8);
       const userRecord = await auth.createUser({
+        uid: uniqueId,
         email: newMember.email,
         password: randomPassword,
         displayName: newMember.name
@@ -49,7 +72,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       // Set custom claims for the user
       await auth.setCustomUserClaims(userRecord.uid, { 
-        userName: newMember.id,
+        userName: uniqueId,
         onboarded: true // User is considered onboarded immediately
       });
 
@@ -78,7 +101,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       batch.set(userRef, {
         name: newMember.name,
         email: newMember.email,
-        userName: newMember.id,
+        userName: uniqueId,
         createdAt: new Date().toISOString(),
         onboarded: true // User is considered onboarded immediately
       });
