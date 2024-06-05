@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { initializeApp, getApps } from 'firebase/app';
-import { getFirestore, doc, updateDoc, setDoc, writeBatch, collection, getDoc } from 'firebase/firestore';
+import { getFirestore, doc, updateDoc, arrayUnion, setDoc, writeBatch, getDocs, collection, query } from 'firebase/firestore';
 import admin from 'firebase-admin';
 
 // Firebase configuration
@@ -33,20 +33,22 @@ if (!admin.apps.length) {
 const db = getFirestore(app);
 const auth = admin.auth();
 
-// Function to generate a unique user ID starting with "DALP" followed by 5 digits
-const generateUniqueId = async () => {
-  let uniqueId: string;
-  let isUnique = false;
+const generateRandomId = async (): Promise<string> => {
+  const generateId = () => `DALP${Math.floor(Math.random() * 90000) + 10000}`;
+  let uniqueId = generateId();
 
-  while (!isUnique) {
-    const randomId = 'DALP' + Math.floor(10000 + Math.random() * 90000).toString();
-    const userRef = doc(db, 'users', randomId);
-    const docSnapshot = await getDoc(userRef);
+  // Ensure the generated ID is unique by checking the Firestore database
+  const usersRef = collection(db, 'users');
+  const q = query(usersRef);
+  const snapshot = await getDocs(q);
 
-    if (!docSnapshot.exists()) {
-      uniqueId = randomId;
-      isUnique = true;
-    }
+  const ids = new Set<string>();
+  snapshot.forEach((doc) => {
+    ids.add(doc.data().userName);
+  });
+
+  while (ids.has(uniqueId)) {
+    uniqueId = generateId();
   }
 
   return uniqueId;
@@ -58,13 +60,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const { groupId, newMember } = req.body;
       const groupRef = doc(db, 'groups', groupId);
 
-      // Generate a unique user ID
-      const uniqueId = await generateUniqueId();
+      // Generate a unique ID
+      const uniqueId = await generateRandomId();
 
-      // Create a new user with Firebase Admin SDK using the unique ID
+      // Create a new user with Firebase Admin SDK using the provided ID as userName
       const randomPassword = Math.random().toString(36).slice(-8);
       const userRecord = await auth.createUser({
-        uid: uniqueId,
         email: newMember.email,
         password: randomPassword,
         displayName: newMember.name
