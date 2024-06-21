@@ -1,5 +1,5 @@
 import configuration from '~/configuration';
-import { Cog8ToothIcon, ShieldCheckIcon, CodeBracketIcon, Squares2X2Icon, MagnifyingGlassPlusIcon, CodeBracketSquareIcon, ArchiveBoxArrowDownIcon } from '@heroicons/react/24/outline';
+import { Cog8ToothIcon, ShieldCheckIcon, CodeBracketIcon, Squares2X2Icon, MagnifyingGlassPlusIcon, CodeBracketSquareIcon, ArchiveBoxArrowDownIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 
 const NAVIGATION_CONFIG = {
   items: [
@@ -7,28 +7,22 @@ const NAVIGATION_CONFIG = {
       label: 'common:dashboardTabLabel',
       path: configuration.paths.appHome,
       Icon: ({ className }: { className: string }) => {
-        return <Squares2X2Icon className={className} />;
+        return <CheckCircleIcon className={className} />;
       },
     },
-    {
-      label: 'common:settingsTabLabel',
-      path: '/settings',
-      Icon: ({ className }: { className: string }) => {
-        return <Cog8ToothIcon className={className} />;
-      },
-    },
+   
     {
       label: 'common:searchLabel',
-      path: '/search',
+      path: '/dataview',
       Icon: ({ className }: { className: string }) => {
         return <MagnifyingGlassPlusIcon        className={className} />;
       },
     },
     {
-      label: 'common:reportsLabel',
-      path: '/dataview',
+      label: 'common:NYLabel',
+      path: '/nystate',
       Icon: ({ className }: { className: string }) => {
-        return <ArchiveBoxArrowDownIcon        className={className} />;
+        return <CodeBracketSquareIcon className={className} />;
       },
     },
     {
@@ -40,12 +34,13 @@ const NAVIGATION_CONFIG = {
       },
     },
     {
-      label: 'common:NYLabel',
-      path: '/nystate',
+      label: 'common:settingsTabLabel',
+      path: '/settings',
       Icon: ({ className }: { className: string }) => {
-        return <CodeBracketSquareIcon className={className} />;
+        return <Cog8ToothIcon className={className} />;
       },
     },
+  
   ],
 };
 
