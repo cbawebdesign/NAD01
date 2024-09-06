@@ -10,7 +10,7 @@ export default function UploadPage() {
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string>('');
   const [uploadErrors, setUploadErrors] = useState<string[]>([]);
-  const categories = ['Test','K1-2024', 'Quarterly Report Q1-2024','Quarterly Report Q4-2023', 'Financials-Q12024','Financials-Q42023', 'CAS23Q4', 'CAS24Q1', 'CAS23Q4', 'CAS23Q3', 'CAS23Q2', 'Distributions2023', 'Distributions2024'];
+  const categories = ['Newsletter Q3-2024','Test','K1-2024', 'Quarterly Report Q1-2024','Quarterly Report Q4-2023', 'Financials-Q12024','Financials-Q42023', 'CAS23Q4', 'CAS24Q1', 'CAS23Q4', 'CAS23Q3', 'CAS23Q2', 'Distributions2023', 'Distributions2024'];
   const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
