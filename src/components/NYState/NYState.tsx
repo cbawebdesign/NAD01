@@ -10,7 +10,7 @@ export default function UploadPage() {
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string>('');
   const [uploadErrors, setUploadErrors] = useState<string[]>([]);
-  const categories = ['Q1 2025 Quarterly Report', 'CAS25Q2', 'Financials Q2-2025', 'Quarterly Report Q2-2025','CAS25Q1','Financials-Q12025','Final Q4 CAS', '2024TaxEstimates','Distributions2025','Quarterly Report Q4-2024', 'CAS24Q4', 'Financials-Q42024', 'Quarterly Report Q3-2024', 'Financials-Q32024', 'CAS24Q3', 'Quarterly Report Q2-2024', 'CAS24Q2','Financials-Q2024','Newsletter Q3-2024','Test','K1-2024', 'Quarterly Report Q1-2024','Quarterly Report Q4-2023', 'Financials-Q12024','Financials-Q42023', 'CAS23Q4', 'CAS24Q1', 'CAS23Q4', 'CAS23Q3', 'CAS23Q2', 'Distributions2023', 'Distributions2024'];
+  const categories = ['Quarterly Report Q3-2025', 'Financials Q2-2025', 'CAS25Q3', 'Q1 2025 Quarterly Report', 'CAS25Q2', 'Financials Q2-2025', 'Quarterly Report Q2-2025','CAS25Q1','Financials-Q12025','Final Q4 CAS', '2024TaxEstimates','Distributions2025','Quarterly Report Q4-2024', 'CAS24Q4', 'Financials-Q42024', 'Quarterly Report Q3-2024', 'Financials-Q32024', 'CAS24Q3', 'Quarterly Report Q2-2024', 'CAS24Q2','Financials-Q2024','Newsletter Q3-2024','Test','K1-2024', 'Quarterly Report Q1-2024','Quarterly Report Q4-2023', 'Financials-Q12024','Financials-Q42023', 'CAS23Q4', 'CAS24Q1', 'CAS23Q4', 'CAS23Q3', 'CAS23Q2', 'Distributions2023', 'Distributions2024'];
   const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
